@@ -1018,63 +1018,120 @@
 // Custom script
 
 
-async function getSliderConfig(id) {
-    const res = await fetch(`http://localhost:3002/api/sliders/${id}`)
-        .then(response => response.json())
-        .catch(error => console.log('Error:', error));
+//<!--  Autoplay plugin  -->
+function autoPlay(slider, duration = 2000) {
+    let timeout
+    let mouseOver = false
 
-    return res.config
+
+    function clearNextTimeout() {
+        clearTimeout(timeout)
+    }
+
+    function nextTimeout() {
+        clearTimeout(timeout)
+        if (mouseOver) return
+        timeout = setTimeout(() => {
+            slider.next()
+        }, duration)
+    }
+
+    slider.on("created", () => {
+        slider.container.addEventListener("mouseover", () => {
+            mouseOver = true
+            clearNextTimeout()
+        })
+        slider.container.addEventListener("mouseout", () => {
+            mouseOver = false
+            nextTimeout()
+        })
+        nextTimeout()
+    })
+    slider.on("dragStarted", clearNextTimeout)
+    slider.on("animationEnded", nextTimeout)
+    slider.on("updated", nextTimeout)
 }
 
-const initializeSliders = async () => {
-    const additionalCSS = `
+
+// <!--    -->
+//
+
+(async () => {
+
+    //    get webflow siteId
+    const html = document.getElementsByTagName('html')
+    const webflowSiteId = html[0].getAttribute('data-wf-site')
+
+    // get All slider
+    async function getSliderConfig() {
+        const res = await fetch(`http://localhost:3002/api/sliders?siteId=${webflowSiteId}`)
+            .then(response => response.json())
+            .catch(error => console.log('Error:', error));
+        return res.sliders
+    }
+
+    const allSliderConfig = await getSliderConfig()
+
+    const initializeSliders = async () => {
+        const additionalCSS = `
                                   .flowappz--container {
                                     // display: flex;
                                     overflow: hidden;
+                                    position:relative;
                                     width:100%;
-                               
+                                    height:100%;
                                   }
                                   `;
 
-    const addPackageCss = async () => {
-        const res = await fetch(`https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css`);
+        const addPackageCss = async () => {
+            const res = await fetch(`https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css`);
 
-        if (res.ok) {
-            const cssString = await res.text();
-            const style = document.createElement("style");
-            style.innerHTML = `${cssString} ${additionalCSS}`;
+            if (res.ok) {
+                const cssString = await res.text();
+                const style = document.createElement("style");
+                style.innerHTML = `${cssString} ${additionalCSS}`;
 
-            document.getElementsByTagName("head")[0].appendChild(style);
-        }
+                document.getElementsByTagName("head")[0].appendChild(style);
+            }
+        };
+
+        await addPackageCss();
+
+        const elements = document.querySelectorAll(`[flowappz-slider="true"]`)
+        let ids = []
+        elements.forEach((el) => {
+            ids.push(el.getAttribute('flowappz-slider-id'))
+        })
+
+        const sliders = ids.map(async (id) => {
+
+            const slider = allSliderConfig.find((item) => item.id === Number(id))
+
+            const selector = `[flowappz-slider-id="${id}"]`;
+            const element = document.querySelector(`[flowappz-slider-id="${id}"]`)
+
+            element.style.display = slider.config.direction === "VERTICAL" ? "block" : "flex"
+
+            // Register Plugin
+            function plugins(slide) {
+                if (slider.config.autoplay.active) {
+                    autoPlay(slide, Number(slider.config.autoplay.duration))
+                }
+            }
+
+            return new KeenSlider(element, {
+                loop: true,
+                selector: document.querySelectorAll(`${selector} div`),
+                vertical: slider.config.direction === "VERTICAL",
+            }, [plugins]);
+        })
+
     };
 
-    await addPackageCss();
+    // Initialize sliders if configuration data is not empty
+    if (allSliderConfig.length > 0) {
+        await initializeSliders();
+    }
 
-    const elements = document.querySelectorAll(`[flowappz-slider="true"]`)
+})()
 
-    let ids = []
-
-    elements.forEach((el) => {
-        ids.push(el.getAttribute('flowappz-slider-id'))
-    })
-
-    const sliders = ids.map(async (id) => {
-
-        const config = await getSliderConfig(id);
-
-        const selector = `[flowappz-slider-id="${id}"]`;
-
-        const element = document.querySelector(`[flowappz-slider-id="${id}"]`)
-
-        element.style.display = config.direction === "VERTICAL" ? "block" : "flex"
-
-        return new KeenSlider(element, {
-            loop: true,
-            selector: document.querySelectorAll(`${selector} div`),
-            vertical: config.direction === "VERTICAL",
-        });
-    })
-
-};
-
-initializeSliders();
