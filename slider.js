@@ -1079,7 +1079,6 @@ function autoPlay(slider, duration = 2000) {
                                     overflow: hidden;
                                     position:relative;
                                     width:100%;
-                                    height:100%;
                                   }
                                   `;
 
