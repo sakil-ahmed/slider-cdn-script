@@ -1119,9 +1119,10 @@ function autoPlay(slider, duration = 2000) {
             }
 
             return new KeenSlider(element, {
-                loop: true,
+                loop: slider.config.loop,
                 selector: document.querySelectorAll(`${selector} div`),
                 vertical: slider.config.direction === "VERTICAL",
+                rtl: slider.config.rtl
             }, [plugins]);
         })
 
