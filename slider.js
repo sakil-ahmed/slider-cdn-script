@@ -1053,6 +1053,101 @@ function autoPlay(slider, duration = 2000) {
 }
 
 
+// <!--  Navigation plugin  -->
+function navigation(slider, id) {
+    let dots, arrowLeft, arrowRight
+
+    const wrapper = document.querySelector(`[flowappz-slider-id="${id}"]`)
+
+    function markup(remove) {
+        wrapperMarkup(remove)
+        dotMarkup(remove)
+        arrowMarkup(remove)
+    }
+
+    function removeElement(element) {
+        element.parentNode.removeChild(element)
+    }
+
+    function createDiv(className) {
+        const div = document.createElement("div")
+
+        className.split(" ").forEach((name) => div.classList.add(name))
+
+        return div
+    }
+
+    function arrowMarkup(remove) {
+        if (remove) {
+            removeElement(arrowLeft)
+            removeElement(arrowRight)
+            return
+        }
+        arrowLeft = createDiv("flowappz-slider-navigation flowappz-slider-navigation-left")
+        arrowLeft.addEventListener("click", () => slider.prev())
+        arrowRight = createDiv("flowappz-slider-navigation flowappz-slider-navigation-right")
+        arrowRight.addEventListener("click", () => slider.next())
+
+        wrapper.appendChild(arrowLeft)
+        wrapper.appendChild(arrowRight)
+    }
+
+    function wrapperMarkup(remove) {
+        if (remove) {
+            let parent = wrapper.parentNode
+            while (wrapper.firstChild)
+                parent.insertBefore(wrapper.firstChild, wrapper)
+            removeElement(wrapper)
+        }
+    }
+
+    function dotMarkup(remove) {
+        if (remove) {
+            removeElement(dots)
+            return
+        }
+        dots = createDiv("flowappz-slider-pagination")
+        slider.track.details.slides.forEach((_e, idx) => {
+            const dot = createDiv("flowappz-slider-pagination-bullet")
+            dot.addEventListener("click", () => slider.moveToIdx(idx))
+            dots.appendChild(dot)
+        })
+        wrapper.appendChild(dots)
+    }
+
+    function updateClasses() {
+
+        const slide = slider.track.details.rel
+
+        if (!slider.options.loop) {
+            arrowLeft.classList.toggle("flowappz-slider-navigation-disabled", slide === 0);
+            arrowRight.classList.toggle("flowappz-slider-navigation-disabled", slide === slider.track.details.slides.length - 1);
+
+        }
+
+        Array.from(dots.children).forEach((dot, idx) =>
+            dot.classList.toggle("flowappz-slider-pagination-bullet-active", idx === slide)
+        );
+    }
+
+    slider.on("created", () => {
+        markup()
+        updateClasses()
+    })
+    slider.on("optionsChanged", () => {
+        console.log(2)
+        markup(true)
+        markup()
+        updateClasses()
+    })
+    slider.on("slideChanged", () => {
+        updateClasses()
+    })
+    slider.on("destroyed", () => {
+        markup(true)
+    })
+}
+
 // <!--    -->
 //
 
@@ -1074,13 +1169,75 @@ function autoPlay(slider, duration = 2000) {
 
     const initializeSliders = async () => {
         const additionalCSS = `
-                                  .flowappz--container {
-                                    // display: flex;
-                                    overflow: hidden;
-                                    position:relative;
-                                    width:100%;
-                                  }
-                                  `;
+      .flowappz--container {
+         // display: flex;
+          overflow: hidden;
+         position:relative;
+         width:100%;
+      }                            
+                                  
+        
+//   Navigation css
+                                  
+.flowappz-slider-pagination {
+    display: flex;
+    padding: 10px 0;
+    justify-content: center;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.flowappz-slider-pagination-bullet {
+    border: none;
+    width: 10px;
+    height: 10px;
+    background: #c5c5c5;
+    border-radius: 50%;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.flowappz-slider-pagination-bullet:focus {
+    outline: none;
+}
+
+.flowappz-slider-pagination-bullet-active {
+    background: #0073E6;
+}
+
+.flowappz-slider-navigation {
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    fill: #fff;
+    cursor: pointer;
+}
+
+.flowappz-slider-navigation-left {
+    left: 5px;
+    fill: "#fff";
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' %3E%3Cpath d='M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z' %3E%3C/path%3E%3C/svg%3E");
+}
+
+.flowappz-slider-navigation-right {
+    left: auto;
+    right: 5px;
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg'  viewBox='0 0 24 24' %3E%3Cpath d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.flowappz-slider-navigation-disabled.flowappz-slider-navigation-left {
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' fill='grey' viewBox='0 0 24 24' %3E%3Cpath d='M16.67 0l2.83 2.829-9.339 9.175 9.339 9.167-2.83 2.829-12.17-11.996z' %3E%3C/path%3E%3C/svg%3E");
+}
+
+.flowappz-slider-navigation-disabled.flowappz-slider-navigation-right {
+    background-image: url("data:image/svg+xml, %3Csvg xmlns='http://www.w3.org/2000/svg' fill='grey' viewBox='0 0 24 24' %3E%3Cpath d='M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z'%3E%3C/path%3E%3C/svg%3E");
+} 
+
+`;
 
         const addPackageCss = async () => {
             const res = await fetch(`https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css`);
@@ -1116,6 +1273,13 @@ function autoPlay(slider, duration = 2000) {
                 if (slider.config.autoplay.active) {
                     autoPlay(slide, Number(slider.config.autoplay.duration))
                 }
+
+                // if navigation is true
+                if (slider.config.navigation) {
+                    navigation(slide, id)
+                }
+
+
             }
 
             return new KeenSlider(element, {
