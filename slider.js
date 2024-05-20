@@ -1170,15 +1170,12 @@ function navigation(slider, id) {
     const initializeSliders = async () => {
         const additionalCSS = `
       .flowappz--container {
-         // display: flex;
+     
           overflow: hidden;
          position:relative;
          width:100%;
       }                            
-                                  
-        
-//   Navigation css
-                                  
+                                                                  
 .flowappz-slider-pagination {
     display: flex;
     padding: 10px 0;
