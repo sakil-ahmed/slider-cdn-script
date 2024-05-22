@@ -1281,7 +1281,7 @@ function navigation(slider, id) {
 
             return new KeenSlider(element, {
                 loop: slider.config.loop,
-                selector: document.querySelectorAll(`${selector} div`),
+                selector: document.querySelectorAll(`${selector} .flowappz--slide`),
                 vertical: slider.config.direction === "VERTICAL",
                 rtl: slider.config.rtl
             }, [plugins]);
