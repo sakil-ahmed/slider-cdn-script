@@ -1083,13 +1083,11 @@ function navigation(slider, id) {
             removeElement(arrowRight)
             return
         }
-        arrowLeft = createDiv("flowappz-slider-navigation flowappz-slider-navigation-left")
+        arrowLeft = document.querySelector(`[flowappz-slider-id="${id}"] .flowappz-slider-navigation-left-btn`)
         arrowLeft.addEventListener("click", () => slider.prev())
-        arrowRight = createDiv("flowappz-slider-navigation flowappz-slider-navigation-right")
+        arrowRight = document.querySelector(`[flowappz-slider-id="${id}"] .flowappz-slider-navigation-right-btn`)
         arrowRight.addEventListener("click", () => slider.next())
 
-        wrapper.appendChild(arrowLeft)
-        wrapper.appendChild(arrowRight)
     }
 
     function wrapperMarkup(remove) {
