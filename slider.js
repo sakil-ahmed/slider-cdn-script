@@ -1106,13 +1106,13 @@ function navigation(slider, id) {
             removeElement(dots)
             return
         }
-        dots = createDiv("flowappz-slider-pagination")
+        dots = document.querySelectorAll(`[flowappz-slider-id="${id}"] .flowappz-slider-pagination-bullet`)
+
         slider.track.details.slides.forEach((_e, idx) => {
-            const dot = createDiv("flowappz-slider-pagination-bullet")
-            dot.addEventListener("click", () => slider.moveToIdx(idx))
-            dots.appendChild(dot)
+
+            dots[idx].addEventListener("click", () => slider.moveToIdx(idx))
+
         })
-        wrapper.appendChild(dots)
     }
 
     function updateClasses() {
@@ -1125,7 +1125,7 @@ function navigation(slider, id) {
 
         }
 
-        Array.from(dots.children).forEach((dot, idx) =>
+        Array.from(dots).forEach((dot, idx) =>
             dot.classList.toggle("flowappz-slider-pagination-bullet-active", idx === slide)
         );
     }
