@@ -1281,7 +1281,12 @@ function navigation(slider, id) {
                 loop: slider.config.loop,
                 selector: document.querySelectorAll(`${selector} .flowappz--slide`),
                 vertical: slider.config.direction === "VERTICAL",
-                rtl: slider.config.rtl
+                rtl: slider.config.rtl,
+                slides: {
+                    origin: slider.config.origin,
+                    perView: Number(slider.config.slidesPerView),
+                    spacing: Number(slider.config.spacing),
+                },
             }, [plugins]);
         })
 
