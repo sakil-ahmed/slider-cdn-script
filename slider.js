@@ -1287,6 +1287,7 @@ function navigation(slider, id) {
                     perView: Number(slider.config.slidesPerView),
                     spacing: Number(slider.config.spacing),
                 },
+                drag: slider.config.draggable
             }, [plugins]);
         })
 
