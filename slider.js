@@ -1146,6 +1146,21 @@ function navigation(slider, id) {
     })
 }
 
+// <!--  keyboard navigation plugin   -->
+function keyboardNavigation(slide, id, elements) {
+
+    if (elements.length <= 1) {
+        document.body.addEventListener('keydown', (e) => {
+            if (e.code === "ArrowRight") {
+                slide.next()
+            }
+            if (e.code === "ArrowLeft") {
+                slide.prev()
+            }
+        })
+    }
+}
+
 // <!--    -->
 //
 
@@ -1272,6 +1287,10 @@ function navigation(slider, id) {
                 // if navigation is true
                 if (slider.config.navigation) {
                     navigation(slide, id)
+                }
+
+                if (slider.config.keyboardNavigation) {
+                    keyboardNavigation(slide, id, elements)
                 }
 
 
