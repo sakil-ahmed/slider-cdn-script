@@ -1161,6 +1161,31 @@ function keyboardNavigation(slide, id, elements) {
     }
 }
 
+// <!--  counter plugin  -->
+function counterPlugin(slide, id) {
+    const totalSlides = slide.slides.length
+    let activeSlide = 1
+
+    const selector = `[flowappz-slider-id="${id}"]`;
+    const activeSlideElement = document.querySelector(`${selector} [flowappz-active-counter="true"]`)
+    const totalSlideElement = document.querySelector(`${selector} [flowappz-total-counter="true"]`)
+
+    slide.on('created', () => {
+
+        // Default value
+        activeSlideElement.innerText = activeSlide
+        totalSlideElement.innerText = totalSlides
+
+        slide.on("slideChanged", () => {
+            activeSlide = slide.track.details.rel + 1
+
+            // Update value when slide change
+            activeSlideElement.innerText = activeSlide
+        })
+
+    })
+}
+
 // <!--    -->
 //
 
@@ -1278,6 +1303,10 @@ function keyboardNavigation(slide, id, elements) {
 
             element.style.display = slider.config.direction === "VERTICAL" ? "block" : "flex"
 
+            // when counter is false hide dom
+            const counterWrapper = document.querySelector(`${selector} .flowappz-counter-wrapper`)
+            counterWrapper.style.display = slider.config.counter ? "flex" : "none"
+
             // Register Plugin
             function plugins(slide) {
                 if (slider.config.autoplay.active) {
@@ -1293,6 +1322,9 @@ function keyboardNavigation(slide, id, elements) {
                     keyboardNavigation(slide, id, elements)
                 }
 
+                if (slider.config.counter) {
+                    counterPlugin(slide, id)
+                }
 
             }
 
