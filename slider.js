@@ -1191,19 +1191,7 @@ function counterPlugin(slide, id) {
 
 (async () => {
 
-    //    get webflow siteId
-    const html = document.getElementsByTagName('html')
-    const webflowSiteId = html[0].getAttribute('data-wf-site')
-
-    // get All slider
-    async function getSliderConfig() {
-        const res = await fetch(`http://localhost:3002/api/sliders?siteId=${webflowSiteId}`)
-            .then(response => response.json())
-            .catch(error => console.log('Error:', error));
-        return res.sliders
-    }
-
-    const allSliderConfig = await getSliderConfig()
+    const elements = document.querySelectorAll(`[flowappz-slider="true"]`)
 
     const initializeSliders = async () => {
         const additionalCSS = `
@@ -1288,7 +1276,6 @@ function counterPlugin(slide, id) {
 
         await addPackageCss();
 
-        const elements = document.querySelectorAll(`[flowappz-slider="true"]`)
         let ids = []
         elements.forEach((el) => {
             ids.push(el.getAttribute('flowappz-slider-id'))
@@ -1296,10 +1283,10 @@ function counterPlugin(slide, id) {
 
         const sliders = ids.map(async (id) => {
 
-            const slider = allSliderConfig.find((item) => item.id === Number(id))
-
             const selector = `[flowappz-slider-id="${id}"]`;
             const element = document.querySelector(`[flowappz-slider-id="${id}"]`)
+
+            const slider = JSON.parse(element.getAttribute('flowappz-slider-config'))
 
             element.style.display = slider.config.direction === "VERTICAL" ? "block" : "flex"
 
@@ -1345,7 +1332,7 @@ function counterPlugin(slide, id) {
     };
 
     // Initialize sliders if configuration data is not empty
-    if (allSliderConfig.length > 0) {
+    if (elements.length > 0) {
         await initializeSliders();
     }
 
